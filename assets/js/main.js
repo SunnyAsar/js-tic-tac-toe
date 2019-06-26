@@ -19,36 +19,47 @@ const GameBoard = (() =>{
     positions[index] = piece
   }
 
+  const isPositionOcupied = index => positions[index] != '-'
+
   return{
-    positions, render, reset, markPosition
+    positions, render, reset, markPosition, isPositionOcupied
   }
 })()
 
 
 const GamePlay = (()=>{
   let player1, player2
-  let currentPlayer 
+  let currentPlayer
+  let $message = document.getElementById('game-message')
+  let state = 'playing'
 
   function init () {
     player1 = Player('Player 1', 'O')
     player2 = Player('Player 2', 'X')
     currentPlayer = player1
-
+    setMessage('Player 1 turn')
     GameBoard.reset()
     GameBoard.render()
   }
 
+  function isInvalidMove (index) {
+    return  Boolean(GameBoard.isPositionOcupied(index) || state != 'playing' )
+  }
+
   function play(index){
-    console.log(`cell ${index} was taped`)
+    if (isInvalidMove(index)) return
     GameBoard.markPosition(index,currentPlayer.piece)
-    GamePlay.togglePlayer()
-    alert(`${currentPlayer["name"]} turn`)
+    togglePlayer()
     GameBoard.render()
   }
 
+  function setMessage (msg) {
+    $message.innerHTML = msg
+  }
 
   function togglePlayer(){
    currentPlayer = currentPlayer == player1 ? player2 : player1
+   setMessage(`${currentPlayer.name} turn`)
   }
 
   return {
@@ -56,12 +67,9 @@ const GamePlay = (()=>{
   }
 })()
 
-
-
 const Player = (name, piece)=>{
 
   return{
     name, piece
   }
 }
-
