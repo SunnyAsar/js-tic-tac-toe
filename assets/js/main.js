@@ -1,8 +1,8 @@
-document.addEventListener('DOMContentLoaded',()=>{
-
-GameBoard.render()
+document.addEventListener('DOMContentLoaded',() => {
+  const player1 = Player('Player 1', 'O')
+  const player2 = Player('Player 2', 'X')
+  GamePlay.init(player1, player2)
 })
-
 
 const GameBoard = (() =>{
   positions = ['x','o','x','-','x','-','o','-','o']
@@ -14,29 +14,33 @@ const GameBoard = (() =>{
   }
 
   function play(index){
-    console.log(` cell ${index} was taped`)
+    console.log(`cell ${index} was taped`)
   }
+
+  function reset () {
+    positions = positions.map(pos => '-')
+  }
+
   return{
-    positions, render, play
+    positions, render, play, reset
   }
 })()
 
 
 const GamePlay = (()=>{
+  let player1, player2
+  function init (players1, player2) {
+    GameBoard.reset()
+    GameBoard.render()
+  }
 
-  return{
-
+  return {
+    init
   }
 })()
 
-const player = (name, piece)=>{
-  
-  function play(piece){
-    // pick position on board
-  }
-
+const Player = (name, piece)=>{
   return{
-    name, piece, play
+    name, piece
   }
-
 }
