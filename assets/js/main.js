@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded',() => {
+
+
   GamePlay.init()
 })
 
@@ -34,12 +36,29 @@ const GamePlay = (()=>{
   let state = 'playing'
 
   function init () {
-    player1 = Player('Player 1', 'O')
-    player2 = Player('Player 2', 'X')
+
+    const {playerOneName, playerTwoName} = getPlayersNames()
+    player1 = Player(playerOneName, 'O')
+    player2 = Player(playerTwoName, 'X')
     currentPlayer = player1
-    setMessage('Player 1 turn')
+    setMessage(`${playerOneName}'s Turn`)
     GameBoard.reset()
     GameBoard.render()
+  }
+
+  function getPlayersNames(){
+    let playerOneName, playerTwoName 
+
+    while (playerOneName == null || playerOneName == "" ){
+     playerOneName = prompt("Enter player 1's name ", 'player1')
+    }
+    while (playerTwoName == null || playerTwoName == "" ){
+     playerTwoName =  prompt("Enter player 2's name ", 'player2')
+    }
+       
+    return {
+       playerOneName, playerTwoName
+    }
   }
 
   function isInvalidMove (index) {
