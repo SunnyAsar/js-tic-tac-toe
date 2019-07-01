@@ -96,7 +96,6 @@ const GamePlay = (() => {
   function checkGame () {
     const win = GameBoard.movesInWinningMoves(currentPlayer.moves)
     const tie = GameBoard.isFull()
-    console.log(win, tie)
     return { win, tie }
   }
 
