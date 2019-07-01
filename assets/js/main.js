@@ -1,9 +1,17 @@
-document.addEventListener('DOMContentLoaded', () => {
-  GamePlay.init()
-})
 
 const GameBoard = (() => {
-  positions = ['x', 'o', 'x', '-', 'x', '-', 'o', '-', 'o']
+  positions = ['-', '-', '-', '-', '-', '-', '-', '-', '-']
+
+  let winningMoves = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+  ]
 
   function render() {
     positions.forEach((piece, index) => {
@@ -21,13 +29,29 @@ const GameBoard = (() => {
     render()
   }
 
+  function isFull(){
+    positions.every((p) => ( p != '-' ))
+  }
+
+  function isEmptyPosition(index){
+    positions[index] === '-'
+  }
+
+  function movesInWinningMoves(moves){
+    winningMoves.some(group => group.every(item =>  moves.includes(item) ))
+  }
+
+
   function getPositions () {
     return positions
   }
 
   const isPositionOcupied = index => positions[index] != '-'
 
-  return { reset, markPosition, isPositionOcupied, getPositions }
+  return { reset, markPosition, 
+    isPositionOcupied, getPositions, 
+    isFull, isEmptyPosition, movesInWinningMoves 
+  }
 })()
 
 
@@ -129,4 +153,19 @@ const helpers = (() => {
   return { splitInChunks, transpose }
 })()
 
-const Player = (name, piece) => ({ name, piece })
+const Player = (name, piece) => {
+  let moves = []
+
+  function makeMove(index){
+    moves.push(index)
+    GameBoard.markPosition(index, piece)
+  }
+  
+  return{
+    name, piece, makeMove, moves
+  }
+}
+
+
+GamePlay.init()
+
