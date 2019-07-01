@@ -30,15 +30,11 @@ const GameBoard = (() => {
   }
 
   function isFull(){
-    positions.every((p) => ( p != '-' ))
+    return positions.every(p => p !== '-')
   }
 
-  function isEmptyPosition(index){
-    positions[index] === '-'
-  }
-
-  function movesInWinningMoves(moves){
-    winningMoves.some(group => group.every(item =>  moves.includes(item) ))
+  function movesInWinningMoves (moves){
+    return winningMoves.some(group => group.every(item =>  moves.includes(item)))
   }
 
 
@@ -48,9 +44,9 @@ const GameBoard = (() => {
 
   const isPositionOcupied = index => positions[index] != '-'
 
-  return { reset, markPosition, 
-    isPositionOcupied, getPositions, 
-    isFull, isEmptyPosition, movesInWinningMoves 
+  return { reset, markPosition,
+    isPositionOcupied, getPositions,
+    isFull, movesInWinningMoves
   }
 })()
 
@@ -59,7 +55,7 @@ const GamePlay = (() => {
   let player1, player2
   let currentPlayer
   let $message = document.getElementById('game-message')
-  let state = 'pause'
+  let isPlaying = false
 
   function init() {
     GameBoard.reset()
@@ -68,7 +64,7 @@ const GamePlay = (() => {
     player2 = Player(playerTwoName, 'X')
     currentPlayer = player1
     setMessage(`${playerOneName}'s Turn`)
-    state = 'playing'
+    isPlaying = true
   }
 
   function getPlayersNames() {
@@ -84,44 +80,24 @@ const GamePlay = (() => {
     return { playerOneName, playerTwoName }
   }
 
-  function isInvalidMove(index) {
-    return Boolean(GameBoard.isPositionOcupied(index) || state != 'playing')
-  }
-
   function play(index) {
-    if (isInvalidMove(index)) return
-    GameBoard.markPosition(index, currentPlayer.piece)
+    if (GameBoard.isPositionOcupied(index) || !isPlaying) return
+    currentPlayer.makeMove(index)
     const { win, tie } = checkGame(currentPlayer.piece)
     if (win || tie) {
       const msg = win ? `${currentPlayer.name} Won!!!` : `It's a Tie`
       setMessage(msg)
-      state = 'End'
+      isPlaying = false
     } else {
       togglePlayer()
     }
   }
 
-  function checkGame (piece) {
-    const win = isWin(piece)
-    const tie = isTie()
+  function checkGame () {
+    const win = GameBoard.movesInWinningMoves(currentPlayer.moves)
+    const tie = GameBoard.isFull()
+    console.log(win, tie)
     return { win, tie }
-  }
-
-  function isWin(piece) {
-    const positions = GameBoard.getPositions()
-    const boardMatrix = helpers.splitInChunks(positions, 3)
-    const transposedMatrix = helpers.transpose(boardMatrix)
-    return (
-      boardMatrix.some(row => row.every(value => value === piece)) ||
-      transposedMatrix.some(row => row.every(value => value === piece)) ||
-      boardMatrix.map((row, i) => row[i]).every(value => value === piece) ||
-      boardMatrix.map((row, i) => row[2 - i]).every(value => value === piece)
-    )
-  }
-
-  function isTie () {
-    const pieces = [player1.piece, player2.piece]
-    return GameBoard.getPositions().every(pos => pieces.includes(pos))
   }
 
   function setMessage(msg) {
@@ -136,23 +112,6 @@ const GamePlay = (() => {
   return { init, currentPlayer, togglePlayer, play }
 })()
 
-const helpers = (() => {
-  function splitInChunks(arr, chunkSize) {
-    let splitable = Array.from(arr)
-    const tempArr = []
-    while (splitable.length > 0) {
-      tempArr.push(splitable.splice(0, chunkSize))
-    }
-    return tempArr
-  }
-
-  function transpose (arr) {
-    return arr[0].map((_, c) => arr.map(r => r[c]));
-  }
-
-  return { splitInChunks, transpose }
-})()
-
 const Player = (name, piece) => {
   let moves = []
 
@@ -160,7 +119,7 @@ const Player = (name, piece) => {
     moves.push(index)
     GameBoard.markPosition(index, piece)
   }
-  
+
   return{
     name, piece, makeMove, moves
   }
@@ -168,4 +127,3 @@ const Player = (name, piece) => {
 
 
 GamePlay.init()
-
